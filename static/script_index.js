@@ -1,7 +1,6 @@
 var lista = document.getElementById("lista-tarefas");
 
 function adicionarTarefa() {
-
     // Capturar os inputs do formulário
     var titulo = document.getElementById("titulo-tarefa").value.trim();
     var data = document.getElementById("data-tarefa").value;
@@ -10,9 +9,9 @@ function adicionarTarefa() {
     var prioridade = document.getElementById("prioridade-tarefa").value;
     var notificacao = document.getElementById("notificacao-tarefa").value;
 
-    // Tratamento para campos vazios
+    // Validação dos campos obrigatórios
     if (titulo === "" || data === "" || descricao === "") {
-        alert("Por favor, preencha todos os campos.");
+        alert("Por favor, preencha todos os campos obrigatórios.");
         return;
     }
 
@@ -20,96 +19,92 @@ function adicionarTarefa() {
         comentario = "Nenhum comentário adicionado.";
     }
 
-    // Capturar a data de criação
+    // Capturar a data de criação com hora/minutos/segundos
     const dataCriacao = new Date();
-    const dataCriacaoTratada = dataCriacao.toISOString().split('T')[0]; // deixa a data no formato YYYY-MM-DD
-
+    const dataCriacaoTratada = dataCriacao.toISOString().split("T")[0]; // Formato YYYY-MM-DD
+    const dataCriacaoFormatada = dataCriacao.toLocaleString('pt-BR'); // Para exibição
 
     // Criar elemento da tarefa
     var li = document.createElement("li");
     li.className = "list-group-item d-flex flex-column";
 
-    // Cabeçalho visível da tarefa
-    // Usando encodeURIComponent para passar os parâmetros via URL
-    li.innerHTML = `<strong><a href="detalhes_tarefa.html?titulo=${encodeURIComponent(titulo)}&data=${encodeURIComponent(data)}&descricao=${encodeURIComponent(descricao)}&comentario=${encodeURIComponent(comentario)}&prioridade=${encodeURIComponent(prioridade)}&notificacao=${encodeURIComponent(notificacao)}&dataCriacao=${encodeURIComponent(dataCriacaoTratada)}">${titulo}</a></strong> ${data} - Descrição: ${descricao} - Prioridade: ${prioridade}`;
+    // Conteúdo da tarefa com parâmetros codificados
+    li.innerHTML = `
+        <strong>
+            <a href="detalhes_tarefa.html?titulo=${encodeURIComponent(titulo)}&data=${encodeURIComponent(data)}&descricao=${encodeURIComponent(descricao)}&comentario=${encodeURIComponent(comentario)}&prioridade=${encodeURIComponent(prioridade)}&notificacao=${encodeURIComponent(notificacao)}&dataCriacao=${encodeURIComponent(dataCriacaoTratada)}">
+                ${titulo}
+            </a>
+        </strong>
+        ${data} - Descrição: ${descricao} - Prioridade: ${prioridade}
+    `;
 
-    // Div oculta com detalhes
+    // Detalhes ocultos
     var detalhes = document.createElement("div");
     detalhes.style.display = "none";
-    detalhes.innerHTML = `<p><strong>Comentário:</strong> ${comentario}</p><p><strong>Data de criação:</strong> ${dataCriacao}</p>`; 
+    detalhes.innerHTML = `
+        <p><strong>Comentário:</strong> ${comentario}</p>
+        <p><strong>Data de criação:</strong> ${dataCriacaoFormatada}</p>
+    `;
 
-    // Botão de detalhes
-    var botaoDetalhes = document.createElement("button");
-    botaoDetalhes.textContent = "Detalhes";
-    botaoDetalhes.className = "btn btn-outline-info btn-sm";
-    botaoDetalhes.onclick = function () {
-        if (detalhes.style.display === "none") {
-            detalhes.style.display = "block";
-            botaoDetalhes.textContent = "Ocultar";
-        } else {
-            detalhes.style.display = "none";
-            botaoDetalhes.textContent = "Detalhes";
-        }
-    };
+    // Botões de ação
+    var botaoDetalhes = criarBotao("Detalhes", "btn-outline-info", function() {
+        detalhes.style.display = detalhes.style.display === "none" ? "block" : "none";
+        this.textContent = detalhes.style.display === "none" ? "Detalhes" : "Ocultar";
+    });
 
-    // Botão de remover
-    var botaoRemover = document.createElement("button");
-    botaoRemover.textContent = "Remover";
-    botaoRemover.className = "btn btn-outline-danger btn-sm";
-    botaoRemover.onclick = function () {
+    var botaoRemover = criarBotao("Remover", "btn-outline-danger", function() {
         lista.removeChild(li);
         atualizarMensagemVazia();
-    };
+    });
 
-    // Botão de editar
-    var botaoEditar = document.createElement("button");
-    botaoEditar.textContent = "Editar";
-    botaoEditar.className = "btn btn-outline-warning btn-sm";
-    botaoEditar.onclick = function () {
-        document.getElementById("titulo-tarefa").value = titulo;
-        document.getElementById("data-tarefa").value = data;
-        document.getElementById("descricao-tarefa").value = descricao;
-        document.getElementById("comentario-tarefa").value = comentario;
-        document.getElementById("prioridade-tarefa").value = prioridade;
-        document.getElementById("notificacao-tarefa").value = notificacao;
+    var botaoEditar = criarBotao("Editar", "btn-outline-warning", function() {
+        preencherFormularioEdicao(titulo, data, descricao, comentario, prioridade, notificacao);
         lista.removeChild(li);
         atualizarMensagemVazia();
-    }
+    });
 
-    // Div para alinhar os botões
+    // Container para os botões
     var containerBotoes = document.createElement("div");
-    containerBotoes.className = "d-flex gap-2 mt-2";  // Alinha na horizontal com espaçamento e margem superior
+    containerBotoes.className = "d-flex gap-2 mt-2";
+    containerBotoes.append(botaoDetalhes, botaoRemover, botaoEditar);
 
-    // Adiciona os botões ao container
-    containerBotoes.appendChild(botaoDetalhes);
-    containerBotoes.appendChild(botaoRemover);
-    containerBotoes.appendChild(botaoEditar);
-
-    // Adiciona tudo ao <li>
-    li.appendChild(document.createElement("br"));
-    li.appendChild(containerBotoes);
-    li.appendChild(detalhes);
-    li.appendChild(document.createElement("br"));
-
+    // Montagem final do elemento
+    li.append(document.createElement("br"), containerBotoes, detalhes, document.createElement("br"));
     lista.appendChild(li);
     atualizarMensagemVazia();
 
-    // Limpa o formulário
+    // Limpar formulário e mostrar confirmação
     document.querySelector("form").reset();
+    mostrarMensagemConfirmacao("Tarefa adicionada com sucesso!");
+}
 
-    // Adiciona mensagem de confirmação
+// Funções auxiliares
+function criarBotao(texto, classe, onClick) {
+    var botao = document.createElement("button");
+    botao.textContent = texto;
+    botao.className = `btn ${classe} btn-sm`;
+    botao.onclick = onClick;
+    return botao;
+}
+
+function preencherFormularioEdicao(titulo, data, descricao, comentario, prioridade, notificacao) {
+    document.getElementById("titulo-tarefa").value = titulo;
+    document.getElementById("data-tarefa").value = data;
+    document.getElementById("descricao-tarefa").value = descricao;
+    document.getElementById("comentario-tarefa").value = comentario;
+    document.getElementById("prioridade-tarefa").value = prioridade;
+    document.getElementById("notificacao-tarefa").value = notificacao;
+}
+
+function mostrarMensagemConfirmacao(mensagem) {
     var confirmacao = document.createElement("div");
     confirmacao.className = "alert alert-success mt-3";
-    confirmacao.textContent = "Tarefa adicionada com sucesso!";
-    var posicao = document.getElementsByTagName("form")[0];
-    posicao.parentNode.insertBefore(confirmacao, posicao.nextSibling);
-    setTimeout(function () {
-        confirmacao.remove();
-    }, 2000); // Remove a mensagem após 2 segundos
+    confirmacao.textContent = mensagem;
+    document.querySelector("form").after(confirmacao);
+    setTimeout(() => confirmacao.remove(), 2000);
 }
 
 function atualizarMensagemVazia() {
-    const lista = document.getElementById("lista-tarefas");
     const mensagem = document.getElementById("mensagem-vazia");
     mensagem.style.display = lista.children.length === 0 ? "block" : "none";
 }
@@ -118,36 +113,34 @@ function voltar() {
     window.location.href = "index.html";
 }
 
-
+// Funções de filtro
 function filtrarDataCriacao() {
     const tarefas = Array.from(document.querySelectorAll("#lista-tarefas li"));
     
-    // Ordena por data de criação (mais recente primeiro)
     tarefas.sort((a, b) => {
-        const dataA = a.querySelector("div p:nth-child(2)").textContent.split(": ")[1];
-        const dataB = b.querySelector("div p:nth-child(2)").textContent.split(": ")[1];
-        return new Date(dataB) - new Date(dataA);
+        const urlA = a.querySelector("a").href;
+        const urlB = b.querySelector("a").href;
+        const dataA = new URL(urlA).searchParams.get("dataCriacao");
+        const dataB = new URL(urlB).searchParams.get("dataCriacao");
+        return new Date(dataB) - new Date(dataA); // Mais recente primeiro
     });
     
-    // Reorganiza a lista
     const lista = document.getElementById("lista-tarefas");
     lista.innerHTML = '';
-    tarefas.forEach(tarefa => lista.appendChild(tarefa));  
+    tarefas.forEach(tarefa => lista.appendChild(tarefa));
 }
 
 function filtrarDataTarefa() {
     const tarefas = Array.from(document.querySelectorAll("#lista-tarefas li"));
     
-    // Ordena por data da tarefa (mais próxima primeiro)
     tarefas.sort((a, b) => {
         const textoA = a.textContent;
         const textoB = b.textContent;
         const dataA = textoA.match(/\d{4}-\d{2}-\d{2}/)[0];
         const dataB = textoB.match(/\d{4}-\d{2}-\d{2}/)[0];
-        return new Date(dataA) - new Date(dataB);
+        return new Date(dataA) - new Date(dataB); // Mais próxima primeiro
     });
     
-    // Reorganiza a lista
     const lista = document.getElementById("lista-tarefas");
     lista.innerHTML = '';
     tarefas.forEach(tarefa => lista.appendChild(tarefa));
@@ -157,14 +150,14 @@ function filtrarPrioridade() {
     const ordemPrioridade = { "alta": 1, "media": 2, "baixa": 3 };
     const tarefas = Array.from(document.querySelectorAll("#lista-tarefas li"));
     
-    // Ordena por prioridade (alta > média > baixa)
     tarefas.sort((a, b) => {
-        const prioridadeA = a.textContent.match(/Prioridade: (\w+)/)[1].toLowerCase();
-        const prioridadeB = b.textContent.match(/Prioridade: (\w+)/)[1].toLowerCase();
+        const urlA = a.querySelector("a").href;
+        const urlB = b.querySelector("a").href;
+        const prioridadeA = new URL(urlA).searchParams.get("prioridade").toLowerCase();
+        const prioridadeB = new URL(urlB).searchParams.get("prioridade").toLowerCase();
         return ordemPrioridade[prioridadeA] - ordemPrioridade[prioridadeB];
     });
     
-    // Reorganiza a lista
     const lista = document.getElementById("lista-tarefas");
     lista.innerHTML = '';
     tarefas.forEach(tarefa => lista.appendChild(tarefa));
@@ -173,14 +166,12 @@ function filtrarPrioridade() {
 function filtrarOrdemAlfabetica() {
     const tarefas = Array.from(document.querySelectorAll("#lista-tarefas li"));
     
-    // Ordena alfabeticamente pela descrição
     tarefas.sort((a, b) => {
         const descricaoA = a.textContent.match(/Descrição: (.+?) - Prioridade:/)[1].toLowerCase();
         const descricaoB = b.textContent.match(/Descrição: (.+?) - Prioridade:/)[1].toLowerCase();
         return descricaoA.localeCompare(descricaoB);
     });
     
-    // Reorganiza a lista
     const lista = document.getElementById("lista-tarefas");
     lista.innerHTML = '';
     tarefas.forEach(tarefa => lista.appendChild(tarefa));

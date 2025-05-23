@@ -23,10 +23,13 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('comentario-tarefa').textContent = params.get('comentario') || 'Nenhum comentário adicionado.';
     document.getElementById('prioridade-tarefa').textContent = params.get('prioridade');
     document.getElementById('notificacao-tarefa').textContent = params.get('notificacao') === 'sim' ? 'Sim' : 'Não';
-    document.getElementById('data-criacao').textContent = params.get('dataCriacao');
+    
+    // Formata a data de criação para exibição
+    const dataCriacaoISO = params.get('dataCriacao');
+    const dataCriacaoFormatada = new Date(dataCriacaoISO).toLocaleString('pt-BR');
+    document.getElementById('data-criacao').textContent = dataCriacaoFormatada;
 })
 
 function voltar() {
     window.history.back();
 }
-
