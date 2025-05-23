@@ -21,8 +21,9 @@ function adicionarTarefa() {
     }
 
     // Capturar a data de criação
-    const now = new Date();
-    const dataCriacao = now.toISOString().split('T')[0];
+    const dataCriacao = new Date();
+    const dataCriacaoTratada = dataCriacao.toISOString().split('T')[0]; // deixa a data no formato YYYY-MM-DD
+
 
     // Criar elemento da tarefa
     var li = document.createElement("li");
@@ -30,7 +31,7 @@ function adicionarTarefa() {
 
     // Cabeçalho visível da tarefa
     // Usando encodeURIComponent para passar os parâmetros via URL
-    li.innerHTML = `<strong><a href="detalhes_tarefa.html?titulo=${encodeURIComponent(titulo)}&data=${encodeURIComponent(data)}&descricao=${encodeURIComponent(descricao)}&comentario=${encodeURIComponent(comentario)}&prioridade=${encodeURIComponent(prioridade)}&notificacao=${encodeURIComponent(notificacao)}&dataCriacao=${encodeURIComponent(dataCriacao)}">${titulo}</a></strong> ${data} - Descrição: ${descricao} - Prioridade: ${prioridade}`;
+    li.innerHTML = `<strong><a href="detalhes_tarefa.html?titulo=${encodeURIComponent(titulo)}&data=${encodeURIComponent(data)}&descricao=${encodeURIComponent(descricao)}&comentario=${encodeURIComponent(comentario)}&prioridade=${encodeURIComponent(prioridade)}&notificacao=${encodeURIComponent(notificacao)}&dataCriacao=${encodeURIComponent(dataCriacaoTratada)}">${titulo}</a></strong> ${data} - Descrição: ${descricao} - Prioridade: ${prioridade}`;
 
     // Div oculta com detalhes
     var detalhes = document.createElement("div");
