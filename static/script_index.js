@@ -19,10 +19,17 @@ function adicionarTarefa() {
         comentario = "Nenhum comentário adicionado.";
     }
 
-    // Capturar a data de criação com hora/minutos/segundos
+    // Capturar a data de criação com hora/minutos/segundos (formato completo)
     const dataCriacao = new Date();
-    const dataCriacaoTratada = dataCriacao.toISOString().split("T")[0]; // Formato YYYY-MM-DD
-    const dataCriacaoFormatada = dataCriacao.toLocaleString('pt-BR'); // Para exibição
+    const dataCriacaoISO = dataCriacao.toISOString(); // Mantém o formato completo
+    const dataCriacaoFormatada = dataCriacao.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
 
     // Criar elemento da tarefa
     var li = document.createElement("li");
@@ -31,7 +38,7 @@ function adicionarTarefa() {
     // Conteúdo da tarefa com parâmetros codificados
     li.innerHTML = `
         <strong>
-            <a href="detalhes_tarefa.html?titulo=${encodeURIComponent(titulo)}&data=${encodeURIComponent(data)}&descricao=${encodeURIComponent(descricao)}&comentario=${encodeURIComponent(comentario)}&prioridade=${encodeURIComponent(prioridade)}&notificacao=${encodeURIComponent(notificacao)}&dataCriacao=${encodeURIComponent(dataCriacaoTratada)}">
+            <a href="detalhes_tarefa.html?titulo=${encodeURIComponent(titulo)}&data=${encodeURIComponent(data)}&descricao=${encodeURIComponent(descricao)}&comentario=${encodeURIComponent(comentario)}&prioridade=${encodeURIComponent(prioridade)}&notificacao=${encodeURIComponent(notificacao)}&dataCriacao=${encodeURIComponent(dataCriacaoISO)}">
                 ${titulo}
             </a>
         </strong>
@@ -78,7 +85,7 @@ function adicionarTarefa() {
     mostrarMensagemConfirmacao("Tarefa adicionada com sucesso!");
 }
 
-// Funções auxiliares
+// Funções auxiliares (mantidas as mesmas)
 function criarBotao(texto, classe, onClick) {
     var botao = document.createElement("button");
     botao.textContent = texto;
@@ -113,7 +120,7 @@ function voltar() {
     window.location.href = "index.html";
 }
 
-// Funções de filtro
+// Funções de filtro atualizadas
 function filtrarDataCriacao() {
     const tarefas = Array.from(document.querySelectorAll("#lista-tarefas li"));
     
@@ -122,6 +129,8 @@ function filtrarDataCriacao() {
         const urlB = b.querySelector("a").href;
         const dataA = new URL(urlA).searchParams.get("dataCriacao");
         const dataB = new URL(urlB).searchParams.get("dataCriacao");
+        
+        if (!dataA || !dataB) return 0;
         return new Date(dataB) - new Date(dataA); // Mais recente primeiro
     });
     
@@ -130,6 +139,7 @@ function filtrarDataCriacao() {
     tarefas.forEach(tarefa => lista.appendChild(tarefa));
 }
 
+// Outras funções de filtro (mantidas as mesmas)
 function filtrarDataTarefa() {
     const tarefas = Array.from(document.querySelectorAll("#lista-tarefas li"));
     
